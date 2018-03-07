@@ -230,7 +230,7 @@ void moveStuff()
 	{
 		poketto.x -= POKEMONSPEED;
 		//HARMONIC WAVE for readme enemy
-		poketto.y = 80 * cos(((2 * 3.1415) / 600)*(poketto.x + 1.5f*SDL_GetTicks()));
+		//poketto.y = 80 * cos(((2 * 3.1415) / 600)*(poketto.x + 1.5f*SDL_GetTicks()));
 		
 		if (poketto.x < 0 - 80) //for testing purposes
 		{
@@ -247,13 +247,22 @@ void moveStuff()
 		//int currentTime = SDL_GetTicks();
 		
 		readme.x -= POKEMONSPEED;
-		readme.y = 400 + (80 * cos(((2 * 3.1415) / 900)*(readme.x + 1.75f*SDL_GetTicks())));
+		readme.y = 200 + (80 * cos(((2 * 3.1415) / 900)*(readme.x + 2*SDL_GetTicks())));
 		if (readme.x < 0 - 80)
 		{
 			readme.x = windowWidth;
 			//srand(SDL_GetTicks());
 			//rand() % windowHeight;
 		}
+	}
+
+
+	int ix, iy = 0; //increment
+	//ax = (g.player_x)
+	if (abs(g.player_x - poketto.x) < 110/2 + 128 /2 && abs(g.player_y - poketto.y) < 120/2 + 80/2)  //collisions
+	{
+		g.player_x = 0;
+		g.player_y = 0;
 	}
 
 }
