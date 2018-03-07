@@ -114,8 +114,8 @@ void start()
 	Mix_Init(MIX_INIT_OGG);
 	Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
 	g.music = Mix_LoadMUS("assets/music1.ogg");
-	//Mix_PlayMusic(g.music, -1);
-	//Mix_VolumeMusic(32); //values from 0 to 128 = MIX_MAX_VOLUME
+	Mix_PlayMusic(g.music, -1);
+	Mix_VolumeMusic(30); //values from 0 to 128 = MIX_MAX_VOLUME
 	//g.fx_shoot = Mix_LoadWAV("assets/name");
 
 	//other general vars
@@ -129,7 +129,7 @@ void start()
 	srand((int)SDL_GetTicks());
 
 	poketto = { rand() % windowWidth + 80, rand() % windowHeight + 80, 0, 0, true }; 
-	readme = { rand() % windowWidth + 120, rand() % windowHeight + 120, true};
+	readme = { rand() % windowWidth + 120, 400, true };//rand() % windowHeight + 120, true};
 
 	//random posx between max screen size and offset sprite size,posy,spritesheetposx,spritesheetposy,alive
 
@@ -244,11 +244,15 @@ void moveStuff()
 
 	if (readme.alive)
 	{
+		//int currentTime = SDL_GetTicks();
+		
 		readme.x -= POKEMONSPEED;
-		readme.y = 60 * cos(((1 * 3.1415) / 700)*(readme.x + 1.75f*SDL_GetTicks()));
+		readme.y = 400 + (80 * cos(((2 * 3.1415) / 900)*(readme.x + 1.75f*SDL_GetTicks())));
 		if (readme.x < 0 - 80)
 		{
 			readme.x = windowWidth;
+			//srand(SDL_GetTicks());
+			//rand() % windowHeight;
 		}
 	}
 
