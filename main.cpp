@@ -224,6 +224,9 @@ void moveStuff()
 	if (g.right && g.player_x < windowWidth - PLAYERSIZE) g.player_x += PLAYER_SPEED;
 	if (g.left && g.player_x > 0) g.player_x -= PLAYER_SPEED;
 
+
+	//if fire true
+
 	if (g.fire)
 	{
 		g.fire = false;
@@ -248,8 +251,11 @@ void moveStuff()
 																		   // i dont care if the bullet is
 																		   //special or not
 		{
-			g.pokebullets[i].x += POKEBALLSPEED;
+			if (g.pokebullets[i].x < windowWidth)
+				g.pokebullets[i].x += POKEBALLSPEED;
 
+			else
+				g.pokebullets[i].alive = false; //when te ball outscreen = alive false for later checks
 			//autoTargeted missile
 			//radial detection
 
@@ -261,6 +267,8 @@ void moveStuff()
 
 				//}
 		}
+		else if (g.pokebullets[i].x > windowWidth - 200) //|| g.pokebullets[i].x < windowWidth)
+			g.pokebullets[i].alive == false;
 
 		//if enemy targeted
 
@@ -282,7 +290,7 @@ void moveStuff()
 			g.pokebullets[i].x += g.dirx;
 			g.pokebullets[i].y += g.diry;
 
-			if (g.pokebullets[i].x == poketto.x || g.pokebullets[i].y == poketto.y)
+			if (g.pokebullets[i].x == poketto.x || g.pokebullets[i].y == poketto.y) //if rendezvous = BOOM
 				g.pokebullets[i].alive = false;
 				g.pokebullets[i].detected = false;
 
@@ -291,42 +299,22 @@ void moveStuff()
 
 	//SPAWN POKEMONS
 
-	//check quantity
-	//if (g.pokemonsOnScreen < g.minPokemonsOnScreen)
-		//g.respawnPokemons = true;
-	//g.lastSpawn = 0;
-
-	//proceed to instantiate
-
-	//if (g.lastSpawn >= NUM_POKEMONS) g.respawnPokemons = true;
-
 	if (g.respawnPokemons)
 	{
 		g.respawnPokemons = false;
-		//srand(SDL_GetTicks());
-		//g.lastSpawn = rand() % NUM_POKEMONS + g.minPokemonsOnScreen;
 
 		if (g.lastSpawn == NUM_POKEMONS)
 			g.lastSpawn = 0;
 
-
-		//if (g.pokemonsOnScreen < g.minPokemonsOnScreen)
-		//{
-		//for (int i = 0; i < g.lastSpawn; ++i)
 		for (int i = 0; i < NUM_POKEMONS; i++)
 		{
 
 			g.pokemon[i] = { rand() % windowWidth + windowWidth + 100, rand() % windowHeight + 100 ,0,0 };//assign random coordinates with constraints
-			//g.pokemon[i].x = rand() % windowWidth + 200;
-			//g.pokemon[i].y = rand() & window;
 			g.pokemon[i].alive = true;
-			//g.pokemonsOnScreen++;
 			g.lastSpawn++;
 
 		}
-		//}
-
-
+		
 	}
 	
 
@@ -337,22 +325,15 @@ void moveStuff()
 
 		if (g.pokemon[i].alive)
 		{
-			if (g.pokemon[i].x > 0)//< windowWidth && g.pokemon[i].x > 0)
+			if (g.pokemon[i].x > 0)
 				g.pokemon[i].x -= POKEMONSPEED;
-			else {
+			else 
+			{
 
+			g.pokemon[i].alive = false;
+			g.lastSpawn--;
 
-				g.pokemon[i].alive = false;
-				g.lastSpawn--;
 			}
-			
-			//else
-			//{
-			//	g.pokemon[i].alive = false;
-			//	g.pokemonsOnScreen--;
-
-			//}
-
 		}
 	}
 
@@ -402,18 +383,34 @@ void moveStuff()
 		{
 			if (abs(g.player_x - g.pokemon[i].x) < POKEMONSIZE / 2 + POKEBALLSIZE / 2 && abs(g.player_y - g.pokemon[i].y) < PLAYERSIZE / 2 + POKEBALLSIZE / 2)
 			{
-				g.player_x = 0;
+				//g.player_x = 0;
 			}
 		}
 	}
-	/*for (int i = 0; i < g.pokemonsOnScreen; ++i)
+
+	///////////////////////////POKEBALLS COLLISIONS
+
+	for (int i = 0; i < NUM_POKEBALLS; i++)
 	{
-		if (abs(g.player_x + (PLAYERSIZE /2) - g.pokemon[i].x + (POKEMONSIZE/2)) < 110 / 2 + 80 / 2 && abs(g.player_y - g.pokemon[i].y) < 128 / 2 + 80 / 2)  //collisions
+		if (g.pokebullets[i].alive)
 		{
-			g.player_x = 0;
-			g.player_y = 0;
+			for (int j = 0; j < NUM_POKEMONS; j++)
+			{
+				if (g.pokemon[j].alive)
+				{
+					if ((abs(g.pokebullets[i].x - g.pokemon[j].x)) < POKEMONSIZE / 2 + POKEBALLSIZE / 2 && abs((g.pokebullets[i].y - g.pokemon[j].y)) < PLAYERSIZE / 2 + POKEBALLSIZE / 2)
+					{
+						g.player_x = 0;
+					}
+				}
+
+			}
 		}
-	}*/
+	}
+
+
+
+
 }
 
 void Draw()
