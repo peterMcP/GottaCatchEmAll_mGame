@@ -17,11 +17,11 @@
 #define SCROLL_SPEED 3
 #define PLAYER_SPEED 5
 #define NUM_POKEBALLS 16
-#define NUM_POKEMONS 10
-#define MIN_POKEMONS 4
+#define NUM_POKEMONS 16
+//#define MIN_POKEMONS 4
 #define POKEBALLSPEED 3
 #define POKEMONSPEED 2
-#define DETECTIONRADIUS 300
+#define DETECTIONRADIUS 100
 #define PLAYERSIZE 70
 #define POKEBALLSIZE 40
 #define POKEMONSIZE 110
@@ -241,13 +241,14 @@ void moveStuff()
 		g.pokebullets[g.last_shot].x = g.player_x + 100;
 		g.pokebullets[g.last_shot].y = g.player_y;
 		++g.last_shot;
+		g.pokebullets[g.last_shot].masterBall = true; //for test purposes ALL instantiated projectiles are masterball
 
 
 	}
 
 	for (int i = 0; i < NUM_POKEBALLS; ++i)
 	{
-		if (g.pokebullets[i].alive && g.pokebullets[i].detected == false)  //while no detection
+		if (g.pokebullets[i].alive) //&& g.pokebullets[i].detected == false)  //while no detection
 																		   // i dont care if the bullet is
 																		   //special or not
 		{
@@ -256,21 +257,64 @@ void moveStuff()
 
 			else
 				g.pokebullets[i].alive = false; //when te ball outscreen = alive false for later checks
-			//autoTargeted missile
-			//radial detection
+			
+			//AUTOTARGET MASTERBALL missile
+			//RADIAL DETECTION
 
-			/*if (pow((g.pokebullets[i].x - poketto.x), 2) +
-				pow((g.pokebullets[i].y - poketto.y), 2) <= pow(DETECTIONRADIUS, 2))
-			{
-				g.pokebullets[i].detected = true; //masterball missile index
-				//pokemon index*/
+				for (int j = 0; j < NUM_POKEMONS; j++)
+				{
 
-				//}
+					if (pow((g.pokebullets[i].x - g.pokemon[j].x), 2) +
+						pow((g.pokebullets[i].y - g.pokemon[j].y), 2) <= pow(DETECTIONRADIUS, 2))
+					{
+						if (g.pokebullets[i].detected == false) //if not detected yet assign indexes
+						{
+							g.pokebullets[i].detected = true; //masterball detetcted a subject
+							g.pokebullets[i].enemyTargetIndex = j;
+							g.player_x = 0;
+						}
+
+					}
+
+					//OLD CODE WORKAROUND
+					/*if (pow((g.pokebullets[i].x - poketto.x), 2) +
+						pow((g.pokebullets[i].y - poketto.y), 2) <= pow(DETECTIONRADIUS, 2))
+					{
+						g.pokebullets[i].detected = true; //masterball missile index
+						//pokemon index*/
+
+						//}
+				
+			}
 		}
-		else if (g.pokebullets[i].x > windowWidth - 200) //|| g.pokebullets[i].x < windowWidth)
+		else if (g.pokebullets[i].x > windowWidth - 200) //if the pokeball go out of screen limits, DIE//|| g.pokebullets[i].x < windowWidth)
 			g.pokebullets[i].alive == false;
 
 		//if enemy targeted
+
+		if (g.pokebullets[i].detected) //workaround to go to X,Y position
+		{
+		//int squareT = (pow((poketto.x - g.player_x + 120) / (POKEBALLSPEED + POKEMONSPEED),2));
+		//g.currentTime = SDL_GetTicks();
+		//g.pokebullets[i].y = (1 / 2) * (2 * (poketto.y - g.pokebullets[i].y) / squareT * squareT); //(pow((poketto.x - g.player_x + 120) / (POKEBALLSPEED + POKEMONSPEED), 2)) * (pow(poketto.x - g.player_x + 120 / (POKEBALLSPEED + POKEMONSPEED), 2)));
+
+		g.dirx = g.pokemon[g.pokebullets[i].enemyTargetIndex].x - g.pokebullets[i].x;
+		g.diry = g.pokemon[g.pokebullets[i].enemyTargetIndex].y - g.pokebullets[i].y;
+
+		g.length = sqrt(g.dirx*g.dirx + g.diry*g.diry);
+
+		g.dirx /= g.length; //normalize vector (make 1 unit length)
+		g.diry /= g.length;
+		g.dirx *= POKEBALLSPEED*2; //scale to our speed
+		g.diry *= POKEBALLSPEED*2;
+		g.pokebullets[i].x += g.dirx;
+		g.pokebullets[i].y += g.diry;
+
+		//if (g.pokebullets[i].x == poketto.x || g.pokebullets[i].y == poketto.y) //if rendezvous = BOOM
+		//g.pokebullets[i].alive = false;
+		//g.pokebullets[i].detected = false;
+
+		}
 
 		/*if (g.pokebullets[i].detected) //workaround to go to X,Y position
 		{
@@ -401,7 +445,7 @@ void moveStuff()
 
 	for (int i = 0; i < NUM_POKEBALLS; i++)
 	{
-		if (g.pokebullets[i].alive)
+		if (g.pokebullets[i].alive && g.pokebullets[i].detected == false)
 		{
 			for (int j = 0; j < NUM_POKEMONS; j++)
 			{
