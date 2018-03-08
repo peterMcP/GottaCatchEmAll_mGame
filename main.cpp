@@ -400,7 +400,10 @@ void moveStuff()
 				{
 					if ((abs(g.pokebullets[i].x - g.pokemon[j].x)) < POKEMONSIZE / 2 + POKEBALLSIZE / 2 && abs((g.pokebullets[i].y - g.pokemon[j].y)) < PLAYERSIZE / 2 + POKEBALLSIZE / 2)
 					{
-						g.player_x = 0;
+						//g.player_x = 0;
+						g.pokemon[j].alive = false;
+						g.pokebullets[i].alive = false;
+
 					}
 				}
 
