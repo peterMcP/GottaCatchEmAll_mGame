@@ -236,7 +236,14 @@ void moveStuff()
 		g.fire = false;
 
 		if (g.last_shot == NUM_POKEBALLS)
+		{
 			g.last_shot = 0;
+			//g.pokebullets[i]
+			for (int i = 0; i < NUM_POKEBALLS; ++i)
+			{
+				g.pokebullets[i].masterBall = false;
+			}
+		}
 			
 
 		g.pokebullets[g.last_shot].alive = true;
@@ -338,6 +345,7 @@ void moveStuff()
 		
 			g.pokebullets[i].alive = false;
 			g.pokebullets[i].detected = false;
+			//g.pokebullets[i].masterBall = false; //set to 0 at the end of its function
 			--g.pokemonsOnScreen;
 		
 
