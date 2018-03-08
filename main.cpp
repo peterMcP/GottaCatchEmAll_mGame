@@ -309,10 +309,12 @@ void moveStuff()
 
 		for (int i = 0; i < NUM_POKEMONS; i++)
 		{
-
-			g.pokemon[i] = { rand() % windowWidth + windowWidth + 100, rand() % windowHeight + 100 ,0,0 };//assign random coordinates with constraints
-			g.pokemon[i].alive = true;
-			g.pokemonsOnScreen++;
+			if (g.pokemon[i].alive == false)
+			{
+				g.pokemon[i] = { rand() % windowWidth + windowWidth + 100, rand() % windowHeight + 100 ,0,0 };//assign random coordinates with constraints
+				g.pokemon[i].alive = true;
+				g.pokemonsOnScreen++;
+			}
 
 		}
 		
