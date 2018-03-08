@@ -21,6 +21,7 @@
 //#define MIN_POKEMONS 4
 #define POKEBALLSPEED 3
 #define POKEMONSPEED 2
+#define READMESPEED 4
 #define DETECTIONRADIUS 100
 #define PLAYERSIZE 70
 #define POKEBALLSIZE 40
@@ -43,6 +44,7 @@ struct pokemon
 	int x, y;
 	int spriteSheetPosX, spriteSheetPosY;
 	bool alive;
+	bool readme; //if this projectile is a BONUS README
 };
 
 struct readme
@@ -271,7 +273,7 @@ void moveStuff()
 						{
 							g.pokebullets[i].detected = true; //masterball detetcted a subject
 							g.pokebullets[i].enemyTargetIndex = j;
-							g.player_x = 0;
+							//g.player_x = 0;
 						}
 
 					}
@@ -294,9 +296,13 @@ void moveStuff()
 
 		if (g.pokebullets[i].detected) //workaround to go to X,Y position
 		{
+		//Try to implement by "complex" method, but the implemented work like a charm and dont need this
+
 		//int squareT = (pow((poketto.x - g.player_x + 120) / (POKEBALLSPEED + POKEMONSPEED),2));
 		//g.currentTime = SDL_GetTicks();
 		//g.pokebullets[i].y = (1 / 2) * (2 * (poketto.y - g.pokebullets[i].y) / squareT * squareT); //(pow((poketto.x - g.player_x + 120) / (POKEBALLSPEED + POKEMONSPEED), 2)) * (pow(poketto.x - g.player_x + 120 / (POKEBALLSPEED + POKEMONSPEED), 2)));
+
+		//////////////////////////////////////////////////////////////////////////////////////////
 
 		g.dirx = g.pokemon[g.pokebullets[i].enemyTargetIndex].x - g.pokebullets[i].x;
 		g.diry = g.pokemon[g.pokebullets[i].enemyTargetIndex].y - g.pokebullets[i].y;
@@ -310,38 +316,19 @@ void moveStuff()
 		g.pokebullets[i].x += g.dirx;
 		g.pokebullets[i].y += g.diry;
 
-		//if (g.pokebullets[i].x == poketto.x || g.pokebullets[i].y == poketto.y) //if rendezvous = BOOM
-		//g.pokebullets[i].alive = false;
-		//g.pokebullets[i].detected = false;
+		if (g.pokebullets[i].x == g.pokemon[g.pokebullets[i].enemyTargetIndex].x ||
+			g.pokebullets[i].y == g.pokemon[g.pokebullets[i].enemyTargetIndex].y) //if rendezvous = BOOM
+		
+			g.pokebullets[i].alive = false;
+			g.pokebullets[i].detected = false;
+			g.pokemonsOnScreen--;
+		
 
 		}
 
-		/*if (g.pokebullets[i].detected) //workaround to go to X,Y position
-		{
-			//int squareT = (pow((poketto.x - g.player_x + 120) / (POKEBALLSPEED + POKEMONSPEED),2));
-			//g.currentTime = SDL_GetTicks();
-			//g.pokebullets[i].y = (1 / 2) * (2 * (poketto.y - g.pokebullets[i].y) / squareT * squareT); //(pow((poketto.x - g.player_x + 120) / (POKEBALLSPEED + POKEMONSPEED), 2)) * (pow(poketto.x - g.player_x + 120 / (POKEBALLSPEED + POKEMONSPEED), 2)));
-
-			g.dirx = poketto.x - g.pokebullets[i].x;
-			g.diry = poketto.y - g.pokebullets[i].y;
-
-			g.length = sqrt(g.dirx*g.dirx + g.diry*g.diry);
-
-			g.dirx /= g.length; //normalize vector (make 1 unit length)
-			g.diry /= g.length;
-			g.dirx *= POKEBALLSPEED*2; //scale to our speed
-			g.diry *= POKEBALLSPEED*2;
-			g.pokebullets[i].x += g.dirx;
-			g.pokebullets[i].y += g.diry;
-
-			if (g.pokebullets[i].x == poketto.x || g.pokebullets[i].y == poketto.y) //if rendezvous = BOOM
-				g.pokebullets[i].alive = false;
-				g.pokebullets[i].detected = false;
-
-		}*/
 	}
 
-	//SPAWN POKEMONS
+	//SPAWN POKEMONS AND BONUSES
 	//if (g.pokemonsOnScreen == 0) g.respawnPokemons = true;
 
 	if (g.respawnPokemons)
@@ -355,6 +342,7 @@ void moveStuff()
 		{
 			if (g.pokemon[i].alive == false)
 			{
+				g.pokemon[i].readme = true;
 				g.pokemon[i] = { rand() % windowWidth + windowWidth + 100, rand() % windowHeight + 100 ,0,0 };//assign random coordinates with constraints
 				g.pokemon[i].alive = true;
 				g.pokemonsOnScreen++;
@@ -370,10 +358,14 @@ void moveStuff()
 	for (int i = 0; i < NUM_POKEMONS; ++i)
 	{
 
-		if (g.pokemon[i].alive)
+		if (g.pokemon[i].alive && g.pokemon[i].readme == false)
 		{
+			
 			if (g.pokemon[i].x > 0)
+			{
 				g.pokemon[i].x -= POKEMONSPEED;
+				//g.pokemon[i].y = 80 * cos(((2 * 3.1415) / 600)*(g.pokemon[i].x + 1.5f*SDL_GetTicks()));
+			}
 			else 
 			{
 
@@ -382,6 +374,7 @@ void moveStuff()
 
 			}
 		}
+
 	}
 
 	if (g.pokemonsOnScreen <= g.minPokemonsOnScreen)
@@ -445,7 +438,7 @@ void moveStuff()
 
 	for (int i = 0; i < NUM_POKEBALLS; i++)
 	{
-		if (g.pokebullets[i].alive && g.pokebullets[i].detected == false)
+		if (g.pokebullets[i].alive && g.pokebullets[i].detected == false) //no collision if the ball is MASTERBALL
 		{
 			for (int j = 0; j < NUM_POKEMONS; j++)
 			{
