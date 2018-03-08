@@ -78,6 +78,8 @@ struct globals
 	bool fire, up, down, left, right;
 	Mix_Music* music = nullptr;
 	Mix_Chunk* fx_shoot = nullptr;
+	Mix_Chunk* fx_capture = nullptr;
+	Mix_Chunk* damage = nullptr;
 	int scroll = 0;
 	int cloudScroll = 0;
 	projectile pokebullets[16];
@@ -114,7 +116,7 @@ void start()
 
 	IMG_Init(IMG_INIT_PNG);
 	g.background = SDL_CreateTextureFromSurface(g.renderer, IMG_Load("assets/background.png"));
-	g.playerTexture = SDL_CreateTextureFromSurface(g.renderer, IMG_Load("assets/player.png"));
+	g.playerTexture = SDL_CreateTextureFromSurface(g.renderer, IMG_Load("assets/AshPidg.png"));
 	g.pokebulletsTexture = SDL_CreateTextureFromSurface(g.renderer, IMG_Load("assets/pokeBalls.png"));
 	g.pokemonTexture = SDL_CreateTextureFromSurface(g.renderer, IMG_Load("assets/diamond-pearl.png"));
 	g.readmeTexture = SDL_CreateTextureFromSurface(g.renderer, IMG_Load("assets/readme.png"));
@@ -137,7 +139,9 @@ void start()
 	g.music = Mix_LoadMUS("assets/music1.ogg");
 	Mix_PlayMusic(g.music, -1);
 	Mix_VolumeMusic(30); //values from 0 to 128 = MIX_MAX_VOLUME
-	//g.fx_shoot = Mix_LoadWAV("assets/name");
+	g.fx_shoot = Mix_LoadWAV("assets/fx/fireFX.wav");
+	g.fx_capture = Mix_LoadWAV("assets/fx/captureFX.wav");
+	//g.fx_damage = Mix_LoadWAV("assets/fx/damage.wav);
 
 	//other general vars
 
@@ -233,6 +237,7 @@ void moveStuff()
 
 	if (g.fire)
 	{
+		Mix_PlayChannel(-1, g.fx_shoot, 0);
 		g.fire = false;
 
 		if (g.last_shot == NUM_POKEBALLS)
@@ -315,7 +320,7 @@ void moveStuff()
 
 
 
-		//if enemy targeted
+		//if enemy targeted//////////////////////////////////////
 
 		if (g.pokebullets[i].detected )//&& g.pokebullets[i].masterBall) //workaround to go to X,Y position
 		{
@@ -345,10 +350,10 @@ void moveStuff()
 		
 			g.pokebullets[i].alive = false;
 			g.pokebullets[i].detected = false;
-			//g.pokebullets[i].masterBall = false; //set to 0 at the end of its function
 			--g.pokemonsOnScreen;
+			
+			Mix_PlayChannel(-1, g.fx_capture, 0);
 		
-
 		}
 
 	}
@@ -364,7 +369,7 @@ void moveStuff()
 			//g.lastSpawn = 0;
 
 		srand(SDL_GetTicks());
-		int readmesQuantityForRound = rand() % 3;
+		int readmesQuantityForRound = rand() % 3 + 1; // if something crash, remove this and static value
 		int spawnedReadmes = 0;
 
 	 	for (int i = 0; i < NUM_POKEMONS; i++)
@@ -373,10 +378,11 @@ void moveStuff()
 
 			if (g.pokemon[i].alive == false)
 			{
-				
+
 				g.pokemon[i] = { rand() % windowWidth + windowWidth + 100, rand() % windowHeight + 100 ,0,0 };//assign random coordinates with constraints
 				g.pokemon[i].alive = true;
 
+			}
 				if (spawnedReadmes < readmesQuantityForRound)
 				{
 					g.pokemon[i].readme = true;
@@ -384,7 +390,7 @@ void moveStuff()
 				}
 				//else g.pokemon[i].readme = false;
 				++g.pokemonsOnScreen;
-			}
+			
 			
 		}
 		
@@ -421,7 +427,7 @@ void moveStuff()
 	if (g.pokemonsOnScreen <= g.minPokemonsOnScreen) //minimum pokemons on screen before respawn more
 	{
 	 	srand(SDL_GetTicks());
-    	//g.minPokemonsOnScreen = rand() % 7 + 3;
+    	g.minPokemonsOnScreen = rand() % 7 + 3; //WORKS ?
 		g.respawnPokemons = true;
 
 	}
@@ -478,6 +484,7 @@ void moveStuff()
 						g.pokebullets[i].alive = false;
 						
 						g.pokemonsOnScreen--; //rest counter to draw
+						Mix_PlayChannel(-1, g.fx_capture, 0);
 
 					}
 				}
