@@ -298,20 +298,21 @@ void moveStuff()
 	}
 
 	//SPAWN POKEMONS
+	//if (g.pokemonsOnScreen == 0) g.respawnPokemons = true;
 
 	if (g.respawnPokemons)
 	{
 		g.respawnPokemons = false;
 
-		if (g.lastSpawn == NUM_POKEMONS)
-			g.lastSpawn = 0;
+		//if (g.lastSpawn == NUM_POKEMONS)
+			//g.lastSpawn = 0;
 
 		for (int i = 0; i < NUM_POKEMONS; i++)
 		{
 
 			g.pokemon[i] = { rand() % windowWidth + windowWidth + 100, rand() % windowHeight + 100 ,0,0 };//assign random coordinates with constraints
 			g.pokemon[i].alive = true;
-			g.lastSpawn++;
+			g.pokemonsOnScreen++;
 
 		}
 		
@@ -331,13 +332,13 @@ void moveStuff()
 			{
 
 			g.pokemon[i].alive = false;
-			g.lastSpawn--;
+			g.pokemonsOnScreen--;
 
 			}
 		}
 	}
 
-	if (g.lastSpawn < MIN_POKEMONS) g.respawnPokemons = true;
+	if (g.pokemonsOnScreen < MIN_POKEMONS) g.respawnPokemons = true;
 
 
 
@@ -403,6 +404,7 @@ void moveStuff()
 						//g.player_x = 0;
 						g.pokemon[j].alive = false;
 						g.pokebullets[i].alive = false;
+						g.pokemonsOnScreen--; //rest counter to draw
 
 					}
 				}
@@ -450,9 +452,13 @@ void Draw()
 
 	//////////////////////////////////POKEMONS/////////////////////////////////
 
-	for (int i = 0; i < g.maxPokemons; ++i)
-	{
+	//g.pokemonsOnScreen = 0;
 
+	for (int i = 0; i < NUM_POKEMONS; ++i)
+	{
+		//for (int j = 0; j < NUM_POKEMONS; j++)
+			//if (g.pokemon[j].alive == false) g.pokemonsOnScreen++;
+		//if (g.pokemonsOnScreen == g.minPokemonsOnScreen) g.pokemon[i].alive = true;
 		if (g.pokemon[i].alive)
 		{
 			g.spritesRect = { g.pokemon[i].spriteSheetPosX, g.pokemon[i].spriteSheetPosY ,80,80 };
