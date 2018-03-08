@@ -17,6 +17,8 @@
 #define SCROLL_SPEED 3
 #define PLAYER_SPEED 5
 #define NUM_POKEBALLS 16
+#define NUM_POKEMONS 10
+#define MIN_POKEMONS 4
 #define POKEBALLSPEED 3
 #define POKEMONSPEED 2
 #define DETECTIONRADIUS 300
@@ -146,6 +148,8 @@ void start()
 
 	//poketto = { rand() % windowWidth + 80, 120 + 80, 0, 0, true }; 
 	readme = { rand() % windowWidth + 120, 400, true };//rand() % windowHeight + 120, true};
+
+	g.respawnPokemons = true;
 
 	//random posx between max screen size and offset sprite size,posy,spritesheetposx,spritesheetposy,alive
 	
@@ -288,54 +292,71 @@ void moveStuff()
 	//SPAWN POKEMONS
 
 	//check quantity
-	if (g.pokemonsOnScreen < g.minPokemonsOnScreen)
-		g.respawnPokemons = true;
+	//if (g.pokemonsOnScreen < g.minPokemonsOnScreen)
+		//g.respawnPokemons = true;
 	//g.lastSpawn = 0;
 
 	//proceed to instantiate
 
+	//if (g.lastSpawn >= NUM_POKEMONS) g.respawnPokemons = true;
+
 	if (g.respawnPokemons)
 	{
-		srand(SDL_GetTicks());
-		g.lastSpawn = rand() % g.maxPokemons + g.minPokemonsOnScreen;
+		g.respawnPokemons = false;
+		//srand(SDL_GetTicks());
+		//g.lastSpawn = rand() % NUM_POKEMONS + g.minPokemonsOnScreen;
+
+		if (g.lastSpawn == NUM_POKEMONS)
+			g.lastSpawn = 0;
 
 
 		//if (g.pokemonsOnScreen < g.minPokemonsOnScreen)
 		//{
-		for (int i = 0; i < g.lastSpawn; i++)
+		//for (int i = 0; i < g.lastSpawn; ++i)
+		for (int i = 0; i < NUM_POKEMONS; i++)
 		{
 
 			g.pokemon[i] = { rand() % windowWidth + windowWidth + 100, rand() % windowHeight + 100 ,0,0 };//assign random coordinates with constraints
 			//g.pokemon[i].x = rand() % windowWidth + 200;
 			//g.pokemon[i].y = rand() & window;
 			g.pokemon[i].alive = true;
-			g.pokemonsOnScreen++;
+			//g.pokemonsOnScreen++;
+			g.lastSpawn++;
 
 		}
 		//}
 
 
-	}g.respawnPokemons = false;
+	}
+	
 
 	//proceed to move
 
-	for (int i = 0; i < g.maxPokemons; ++i)
+	for (int i = 0; i < NUM_POKEMONS; ++i)
 	{
 
 		if (g.pokemon[i].alive)
 		{
 			if (g.pokemon[i].x > 0)//< windowWidth && g.pokemon[i].x > 0)
 				g.pokemon[i].x -= POKEMONSPEED;
-			//g.pokemon[i].x -= POKEMONSPEED;
-			else
-			{
-				g.pokemon[i].alive = false;
-				g.pokemonsOnScreen--;
+			else {
 
+
+				g.pokemon[i].alive = false;
+				g.lastSpawn--;
 			}
+			
+			//else
+			//{
+			//	g.pokemon[i].alive = false;
+			//	g.pokemonsOnScreen--;
+
+			//}
 
 		}
 	}
+
+	if (g.lastSpawn < MIN_POKEMONS) g.respawnPokemons = true;
 
 
 
@@ -375,12 +396,14 @@ void moveStuff()
 	///////////////////////////////PLAYER COLLISIONS////////////////////////////
 	int ix, iy = 0; //increment
 	//ax = (g.player_x)
-	for (int i = 0; i < g.maxPokemons && g.pokemon[i].alive; i++)
+	for (int i = 0; i < NUM_POKEMONS; i++)
 	{
-
-		if (abs(g.player_x - g.pokemon[i].x) < POKEMONSIZE / 2 + POKEBALLSIZE / 2 && abs(g.player_y - g.pokemon[i].y) < PLAYERSIZE / 2 + POKEBALLSIZE / 2)
+		if (g.pokemon[i].alive)
 		{
-			g.player_x = 0;
+			if (abs(g.player_x - g.pokemon[i].x) < POKEMONSIZE / 2 + POKEBALLSIZE / 2 && abs(g.player_y - g.pokemon[i].y) < PLAYERSIZE / 2 + POKEBALLSIZE / 2)
+			{
+				g.player_x = 0;
+			}
 		}
 	}
 	/*for (int i = 0; i < g.pokemonsOnScreen; ++i)
