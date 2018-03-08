@@ -22,7 +22,7 @@
 #define POKEBALLSPEED 3
 #define POKEMONSPEED 2
 #define READMESPEED 4
-#define DETECTIONRADIUS 100
+#define DETECTIONRADIUS 400
 #define PLAYERSIZE 70
 #define POKEBALLSIZE 40
 #define POKEMONSIZE 110
@@ -90,6 +90,7 @@ struct globals
 	float dirx = 0;
 	float diry = 0;
 	int length = 0;
+	bool masterBall = false;
 	
 	//
 }g; //create structure g at start the game
@@ -199,6 +200,7 @@ bool checkInput()
 				case SDLK_RIGHT: g.right = true; break;
 				case SDLK_LEFT: g.left = true; break;
 				case SDLK_SPACE: g.fire = (event.key.repeat == 0);break;
+				case SDLK_p: g.fire = (event.key.repeat == 0); g.masterBall = true; break;
 				default: break;
 			}
 		}
@@ -235,15 +237,32 @@ void moveStuff()
 
 		if (g.last_shot == NUM_POKEBALLS)
 			g.last_shot = 0;
+			
 
 		g.pokebullets[g.last_shot].alive = true;
 		//g.pokebullets[g.last_shot].spritePosx = rand() % 2 + 1;
 		//g.pokebullets[g.last_shot].spritePosy = rand() % 2 + 1;
-		g.pokebullets[g.last_shot].sprite = rand() % 3;
-		g.pokebullets[g.last_shot].x = g.player_x + 100;
-		g.pokebullets[g.last_shot].y = g.player_y;
-		++g.last_shot;
-		g.pokebullets[g.last_shot].masterBall = true; //for test purposes ALL instantiated projectiles are masterball
+		if (g.masterBall == false) // NORMAL SHOT
+		{
+			g.pokebullets[g.last_shot].sprite = 1;//rand() % (0 + 1);
+			g.pokebullets[g.last_shot].x = g.player_x + 100;
+			g.pokebullets[g.last_shot].y = g.player_y;
+			++g.last_shot;
+		}
+
+		else if (g.masterBall == true) //set the flag FOR MASTERBALL SHOT
+		{
+			g.pokebullets[g.last_shot].x = g.player_x + 100;
+			g.pokebullets[g.last_shot].y = g.player_y;
+			g.pokebullets[g.last_shot].sprite = 0;
+			g.masterBall = false;
+			g.pokebullets[g.last_shot].masterBall = true; //
+			++g.last_shot;
+
+		}
+		
+
+		
 
 
 	}
@@ -262,39 +281,36 @@ void moveStuff()
 			
 			//AUTOTARGET MASTERBALL missile
 			//RADIAL DETECTION
-
+			if (g.pokebullets[i].masterBall == true) //only check if the bullet is MASTERBALL
+			{
 				for (int j = 0; j < NUM_POKEMONS; j++)
 				{
+					//if (g.pokebullets[i].masterBall) //only routine detection if flag
+					//{
 
 					if (pow((g.pokebullets[i].x - g.pokemon[j].x), 2) +
 						pow((g.pokebullets[i].y - g.pokemon[j].y), 2) <= pow(DETECTIONRADIUS, 2))
 					{
 						if (g.pokebullets[i].detected == false) //if not detected yet assign indexes
 						{
-							g.pokebullets[i].detected = true; //masterball detetcted a subject
+							g.pokebullets[i].detected = true; //masterball detected a subject
 							g.pokebullets[i].enemyTargetIndex = j;
 							//g.player_x = 0;
 						}
 
 					}
 
-					//OLD CODE WORKAROUND
-					/*if (pow((g.pokebullets[i].x - poketto.x), 2) +
-						pow((g.pokebullets[i].y - poketto.y), 2) <= pow(DETECTIONRADIUS, 2))
-					{
-						g.pokebullets[i].detected = true; //masterball missile index
-						//pokemon index*/
-
-						//}
-				
+				}
 			}
 		}
 		else if (g.pokebullets[i].x > windowWidth - 200) //if the pokeball go out of screen limits, DIE//|| g.pokebullets[i].x < windowWidth)
 			g.pokebullets[i].alive == false;
 
+
+
 		//if enemy targeted
 
-		if (g.pokebullets[i].detected) //workaround to go to X,Y position
+		if (g.pokebullets[i].detected )//&& g.pokebullets[i].masterBall) //workaround to go to X,Y position
 		{
 		////////////////////////////////////////////////////////////////////////////////////////
 		//Try to implement by "complex" method, but the implemented work like a charm and dont need this
@@ -322,7 +338,7 @@ void moveStuff()
 		
 			g.pokebullets[i].alive = false;
 			g.pokebullets[i].detected = false;
-			g.pokemonsOnScreen--;
+			--g.pokemonsOnScreen;
 		
 
 		}
@@ -330,7 +346,7 @@ void moveStuff()
 	}
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//SPAWN POKEMONS AND BONUSES
-	//if (g.pokemonsOnScreen == 0) g.respawnPokemons = true;
+	
 
 	if (g.respawnPokemons)
 	{
@@ -340,7 +356,7 @@ void moveStuff()
 			//g.lastSpawn = 0;
 
 		srand(SDL_GetTicks());
-		int readmesQuantityForRound = rand() % 3 + 1;
+		int readmesQuantityForRound = rand() % 3;
 		int spawnedReadmes = 0;
 
 	 	for (int i = 0; i < NUM_POKEMONS; i++)
@@ -352,16 +368,18 @@ void moveStuff()
 				
 				g.pokemon[i] = { rand() % windowWidth + windowWidth + 100, rand() % windowHeight + 100 ,0,0 };//assign random coordinates with constraints
 				g.pokemon[i].alive = true;
-				if (spawnedReadmes <= readmesQuantityForRound)
+
+				if (spawnedReadmes < readmesQuantityForRound)
 				{
 					g.pokemon[i].readme = true;
-					++spawnedReadmes;
+ 					++spawnedReadmes;
 				}
 				//else g.pokemon[i].readme = false;
-				g.pokemonsOnScreen++;
+				++g.pokemonsOnScreen;
 			}
-
+			
 		}
+		
 		
 	}
 	
@@ -391,34 +409,18 @@ void moveStuff()
 		}
 
 	}
-
-	if (g.pokemonsOnScreen <= g.minPokemonsOnScreen)
+	//g.minPokemonsOnScreen = rand() % 7 + 3;
+	if (g.pokemonsOnScreen <= g.minPokemonsOnScreen) //minimum pokemons on screen before respawn more
 	{
 	 	srand(SDL_GetTicks());
-    	g.minPokemonsOnScreen = rand() % 7 + 3;
+    	//g.minPokemonsOnScreen = rand() % 7 + 3;
 		g.respawnPokemons = true;
 
 	}
+
+
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-	/*if (poketto.alive)
-	{
-		poketto.x -= POKEMONSPEED;
-		//HARMONIC WAVE for readme enemy
-
-		//poketto.y = 80 * cos(((2 * 3.1415) / 600)*(poketto.x + 1.5f*SDL_GetTicks()));
-
-		if (poketto.x < 0 - 80) //for testing purposes
-		{
-			poketto.x = 640;
-			//poketto.y = 300;//rand() % windowHeight;
-			poketto.spriteSheetPosX = 160;
-			poketto.spriteSheetPosY = 0;
-		}
-
-	}*/
 
 	////////////////////////README HARMONIC WAVE////////////////////////////
 	if (readme.alive)
@@ -445,6 +447,8 @@ void moveStuff()
 			if (abs(g.player_x - g.pokemon[i].x) < POKEMONSIZE / 2 + POKEBALLSIZE / 2 && abs(g.player_y - g.pokemon[i].y) < PLAYERSIZE / 2 + POKEBALLSIZE / 2)
 			{
 				//g.player_x = 0;
+				//event here when player collides with pokemon
+
 			}
 		}
 	}
@@ -464,6 +468,7 @@ void moveStuff()
 						//g.player_x = 0;
 						g.pokemon[j].alive = false;
 						g.pokebullets[i].alive = false;
+						
 						g.pokemonsOnScreen--; //rest counter to draw
 
 					}
