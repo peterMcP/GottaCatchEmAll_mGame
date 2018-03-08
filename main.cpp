@@ -296,6 +296,7 @@ void moveStuff()
 
 		if (g.pokebullets[i].detected) //workaround to go to X,Y position
 		{
+		////////////////////////////////////////////////////////////////////////////////////////
 		//Try to implement by "complex" method, but the implemented work like a charm and dont need this
 
 		//int squareT = (pow((poketto.x - g.player_x + 120) / (POKEBALLSPEED + POKEMONSPEED),2));
@@ -327,7 +328,7 @@ void moveStuff()
 		}
 
 	}
-
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//SPAWN POKEMONS AND BONUSES
 	//if (g.pokemonsOnScreen == 0) g.respawnPokemons = true;
 
@@ -338,13 +339,25 @@ void moveStuff()
 		//if (g.lastSpawn == NUM_POKEMONS)
 			//g.lastSpawn = 0;
 
+		srand(SDL_GetTicks());
+		int readmesQuantityForRound = rand() % 3 + 1;
+		int spawnedReadmes = 0;
+
 	 	for (int i = 0; i < NUM_POKEMONS; i++)
 		{
+			
+
 			if (g.pokemon[i].alive == false)
 			{
-				g.pokemon[i].readme = true;
+				
 				g.pokemon[i] = { rand() % windowWidth + windowWidth + 100, rand() % windowHeight + 100 ,0,0 };//assign random coordinates with constraints
 				g.pokemon[i].alive = true;
+				if (spawnedReadmes <= readmesQuantityForRound)
+				{
+					g.pokemon[i].readme = true;
+					++spawnedReadmes;
+				}
+				//else g.pokemon[i].readme = false;
 				g.pokemonsOnScreen++;
 			}
 
@@ -352,19 +365,21 @@ void moveStuff()
 		
 	}
 	
-
 	//proceed to move
 
 	for (int i = 0; i < NUM_POKEMONS; ++i)
 	{
 
-		if (g.pokemon[i].alive && g.pokemon[i].readme == false)
+		if (g.pokemon[i].alive)
 		{
-			
 			if (g.pokemon[i].x > 0)
 			{
 				g.pokemon[i].x -= POKEMONSPEED;
-				//g.pokemon[i].y = 80 * cos(((2 * 3.1415) / 600)*(g.pokemon[i].x + 1.5f*SDL_GetTicks()));
+				if (g.pokemon[i].readme)
+				{
+					g.pokemon[i].x -= READMESPEED;
+					g.pokemon[i].y = 80 * cos(((2 * 3.1415) / 600)*(g.pokemon[i].x + 1.5f*SDL_GetTicks()));
+				}
 			}
 			else 
 			{
@@ -384,7 +399,7 @@ void moveStuff()
 		g.respawnPokemons = true;
 
 	}
- 
+	////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 
@@ -506,9 +521,18 @@ void Draw()
 		//if (g.pokemonsOnScreen == g.minPokemonsOnScreen) g.pokemon[i].alive = true;
 		if (g.pokemon[i].alive)
 		{
-			g.spritesRect = { g.pokemon[i].spriteSheetPosX, g.pokemon[i].spriteSheetPosY ,80,80 };
-			g.target = { g.pokemon[i].x , g.pokemon[i].y , POKEMONSIZE, POKEMONSIZE };
-			SDL_RenderCopy(g.renderer, g.pokemonTexture, &g.spritesRect, &g.target);
+			g.spritesRect = { g.pokemon[i].spriteSheetPosX, g.pokemon[i].spriteSheetPosY ,80,80 }; //rect to cut off the sprites
+			
+			if (g.pokemon[i].readme == false)
+			{
+				g.target = { g.pokemon[i].x , g.pokemon[i].y , POKEMONSIZE, POKEMONSIZE }; //target rect to render
+				SDL_RenderCopy(g.renderer, g.pokemonTexture, &g.spritesRect, &g.target);
+			}
+			else
+			{
+				g.target = { g.pokemon[i].x , g.pokemon[i].y , READMESIZE, READMESIZE }; //target rect to render
+				SDL_RenderCopy(g.renderer, g.readmeTexture, NULL, &g.target);
+			}
 		}
 	}
 
