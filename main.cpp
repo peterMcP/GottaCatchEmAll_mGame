@@ -307,7 +307,7 @@ void moveStuff()
 		//if (g.lastSpawn == NUM_POKEMONS)
 			//g.lastSpawn = 0;
 
-		for (int i = 0; i < NUM_POKEMONS; i++)
+	 	for (int i = 0; i < NUM_POKEMONS; i++)
 		{
 			if (g.pokemon[i].alive == false)
 			{
@@ -333,15 +333,21 @@ void moveStuff()
 			else 
 			{
 
-			g.pokemon[i].alive = false;
+ 			g.pokemon[i].alive = false;
 			g.pokemonsOnScreen--;
 
 			}
 		}
 	}
 
-	if (g.pokemonsOnScreen < MIN_POKEMONS) g.respawnPokemons = true;
+	if (g.pokemonsOnScreen <= g.minPokemonsOnScreen)
+	{
+	 	srand(SDL_GetTicks());
+    	g.minPokemonsOnScreen = rand() % 7 + 3;
+		g.respawnPokemons = true;
 
+	}
+ 
 
 
 
