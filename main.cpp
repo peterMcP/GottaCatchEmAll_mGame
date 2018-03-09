@@ -79,7 +79,7 @@ struct globals
 	Mix_Music* music = nullptr;
 	Mix_Chunk* fx_shoot = nullptr;
 	Mix_Chunk* fx_capture = nullptr;
-	Mix_Chunk* damage = nullptr;
+	Mix_Chunk* fx_damage = nullptr;
 	int scroll = 0;
 	int cloudScroll = 0;
 	projectile pokebullets[16];
@@ -141,7 +141,7 @@ void start()
 	Mix_VolumeMusic(30); //values from 0 to 128 = MIX_MAX_VOLUME
 	g.fx_shoot = Mix_LoadWAV("assets/fx/fireFX.wav");
 	g.fx_capture = Mix_LoadWAV("assets/fx/captureFX.wav");
-	//g.fx_damage = Mix_LoadWAV("assets/fx/damage.wav);
+	g.fx_damage = Mix_LoadWAV("assets/fx/damageFX.wav");
 
 	//other general vars
 
@@ -410,7 +410,8 @@ void moveStuff()
 				if (g.pokemon[i].readme)
 				{
 					g.pokemon[i].x -= READMESPEED;
-					g.pokemon[i].y = 80 * cos(((2 * 3.1415) / 600)*(g.pokemon[i].x + 1.5f*SDL_GetTicks()));
+					srand(SDL_GetTicks());
+					g.pokemon[i].y = rand () % windowHeight + (80 * cos(((2 * 3.1415) / 600)*(g.pokemon[i].x + 1.5f*SDL_GetTicks())));
 				}
 			}
 			else 
@@ -462,6 +463,7 @@ void moveStuff()
 			{
 				//g.player_x = 0;
 				//event here when player collides with pokemon
+				Mix_PlayChannel(-1, g.fx_damage, 0);
 
 			}
 		}
