@@ -14,7 +14,7 @@
 //globals
 #define windowWidth 640
 #define windowHeight 480
-#define SCROLL_SPEED 80
+#define SCROLL_SPEED 25
 #define PLAYER_SPEED 5
 #define NUM_POKEBALLS 16
 #define NUM_POKEMONS 16
@@ -24,7 +24,7 @@
 #define READMESPEED 4
 #define DETECTIONRADIUS 400
 #define PLAYERSIZE 70
-#define POKEBALLSIZE 40
+#define POKEBALLSIZE 25 //before 40
 #define POKEMONSIZE 110
 #define READMESIZE 50
 
@@ -265,14 +265,14 @@ void moveStuff()
 		if (g.masterBall == false) // NORMAL SHOT
 		{
 			g.pokebullets[g.last_shot].sprite = 1;//rand() % (0 + 1);
-			g.pokebullets[g.last_shot].x = g.player_x + 100;
+			g.pokebullets[g.last_shot].x = g.player_x + POKEBALLSIZE;
 			g.pokebullets[g.last_shot].y = g.player_y;
 			++g.last_shot;
 		}
 
 		else if (g.masterBall == true) //set the flag FOR MASTERBALL SHOT
 		{
-			g.pokebullets[g.last_shot].x = g.player_x + 100;
+			g.pokebullets[g.last_shot].x = g.player_x + POKEBALLSIZE;
 			g.pokebullets[g.last_shot].y = g.player_y;
 			g.pokebullets[g.last_shot].sprite = 0;
 			g.masterBall = false;
@@ -433,7 +433,7 @@ void moveStuff()
 
  			g.pokemon[i].alive = false;
 			g.pokemonsOnScreen--;
-			if (g.pokemon[i].readme == true && g.pokemon[i].x  <= 0)g.gameOver = true;
+			//if (g.pokemon[i].readme == true && g.pokemon[i].x  <= 0)g.gameOver = true;
 
 			}
 		}
@@ -474,7 +474,8 @@ void moveStuff()
 	{
 		if (g.pokemon[i].alive)
 		{
-			if (abs(g.player_x - g.pokemon[i].x) < POKEMONSIZE / 2 + POKEBALLSIZE / 2 && abs(g.player_y - g.pokemon[i].y) < PLAYERSIZE / 2 + POKEBALLSIZE / 2)
+			//if ((abs((g.player_x + (PLAYERSIZE / 2)) - (g.pokemon[i].x + (POKEMONSIZE / 2))) < POKEMONSIZE / 2 + POKEBALLSIZE / 2) && (abs(g.player_y + (PLAYERSIZE / 2) - g.pokemon[i].y + (POKEMONSIZE / 2)) < (PLAYERSIZE / 2 + POKEBALLSIZE / 2)))
+			if (abs(g.pokemon[i].x - g.player_x +(PLAYERSIZE/2) ) < POKEMONSIZE / 2 + POKEBALLSIZE / 2 && abs(g.player_y - g.pokemon[i].y) < PLAYERSIZE / 2 + POKEBALLSIZE / 2)
 			{
 				//g.player_x = 0;
 				//event here when player collides with pokemon
@@ -494,7 +495,7 @@ void moveStuff()
 			{
 				if (g.pokemon[j].alive)
 				{
-					if ((abs(g.pokebullets[i].x - g.pokemon[j].x)) < POKEMONSIZE / 2 + POKEBALLSIZE / 2 && abs((g.pokebullets[i].y - g.pokemon[j].y)) < PLAYERSIZE / 2 + POKEBALLSIZE / 2)
+					if ((abs(g.pokemon[j].x - (g.pokebullets[i].x - POKEBALLSIZE * 2 - 25))) < POKEMONSIZE / 2 + POKEBALLSIZE / 2 && abs((g.pokebullets[i].y - (POKEBALLSIZE) - g.pokemon[j].y)) < PLAYERSIZE / 2 + POKEBALLSIZE / 2)
 					{
 						//g.player_x = 0;
 						g.pokemon[j].alive = false;
