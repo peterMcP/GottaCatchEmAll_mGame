@@ -590,8 +590,10 @@ void Draw()
 			 int lastTime = SDL_GetTicks();
 			 //if(currentTime)
 			 Mix_PlayChannel(-1, g.fx_gameOver, 0);
-			 Mix_HaltMusic();
-			 SDL_Delay(110); //workaround OUT OF TIME
+			// SDL_Delay(110); //workaround OUT OF TIME
+			 Mix_FreeMusic(g.music);
+			 //Mix_HaltMusic();
+			
 			
 			g.target = { 0,0,windowWidth,windowHeight };
 			SDL_RenderCopy(g.renderer, g.gameOverTexture, nullptr, &g.target); //g.background has to be gameover texture
