@@ -45,6 +45,7 @@ struct pokemon
 	int spriteSheetPosX, spriteSheetPosY;
 	bool alive;
 	bool readme; //if this projectile is a BONUS README
+	int randomValue;
 };
 
 struct readme
@@ -94,6 +95,7 @@ struct globals
 	int length = 0;
 	bool masterBall = false;
 	
+	bool gameOver = false;
 	//
 }g; //create structure g at start the game
 
@@ -386,6 +388,8 @@ void moveStuff()
 				if (spawnedReadmes < readmesQuantityForRound)
 				{
 					g.pokemon[i].readme = true;
+					srand(SDL_GetTicks());
+					g.pokemon[i].randomValue = rand() % windowHeight;
  					++spawnedReadmes;
 				}
 				//else g.pokemon[i].readme = false;
@@ -411,7 +415,7 @@ void moveStuff()
 				{
 					g.pokemon[i].x -= READMESPEED;
 					srand(SDL_GetTicks());
-					g.pokemon[i].y = rand () % windowHeight + (80 * cos(((2 * 3.1415) / 600)*(g.pokemon[i].x + 1.5f*SDL_GetTicks())));
+					g.pokemon[i].y = g.pokemon[i].randomValue + (80 * cos(((2 * 3.1415) / 600)*(g.pokemon[i].x + 1.5f*SDL_GetTicks())));
 				}
 			}
 			else 
