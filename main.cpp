@@ -170,8 +170,9 @@ void start()
 
 void finishGame()
 {
-	if (g.gameOver == true)SDL_Delay(9000);
+	//if (g.gameOver == true)SDL_Delay(5000);
 	Mix_FreeMusic(g.music);
+	
 	Mix_FreeChunk(g.fx_shoot);
 	Mix_CloseAudio();
 	Mix_Quit();
@@ -587,16 +588,21 @@ void Draw()
 
 	if (g.gameOver == true)
 		 {
+			 Mix_PlayChannel(1, g.fx_gameOver, 0);
 			 int lastTime = SDL_GetTicks();
-			 //if(currentTime)
-			 Mix_PlayChannel(-1, g.fx_gameOver, 0);
-			// SDL_Delay(110); //workaround OUT OF TIME
+			 int currentime = 0;
 			 Mix_FreeMusic(g.music);
-			 //Mix_HaltMusic();
+			 g.music = nullptr;
+			// Mix_HaltMusic();
 			
 			
 			g.target = { 0,0,windowWidth,windowHeight };
 			SDL_RenderCopy(g.renderer, g.gameOverTexture, nullptr, &g.target); //g.background has to be gameover texture
+			SDL_RenderPresent(g.renderer); //workaround OUT OF TIME
+			//SDL_Delay(5000); //workaround OUT OF TIME
+			while (currentime - lastTime < 10000) currentime = SDL_GetTicks(); //WORKAROUND OUT OF TIME without delay
+
+			//
 		}
 	
 	
