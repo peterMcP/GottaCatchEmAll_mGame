@@ -67,6 +67,7 @@ struct globals
 	SDL_Texture* readmeTexture = nullptr;
 	SDL_Texture* gameOverScreen = nullptr;
 	SDL_Texture* scoreScreen = nullptr;
+	SDL_Texture* gameOverTexture = nullptr;
 	SDL_Rect target;
 	SDL_Rect spritesRect;
 	//int pokeSpritesMatrix[3][2] = { {0,0},{91,0},{0,91} };
@@ -81,6 +82,7 @@ struct globals
 	Mix_Chunk* fx_shoot = nullptr;
 	Mix_Chunk* fx_capture = nullptr;
 	Mix_Chunk* fx_damage = nullptr;
+	Mix_Chunk* fx_gameOver = nullptr;
 	int scroll = 0;
 	int cloudScroll = 0;
 	projectile pokebullets[16];
@@ -122,6 +124,7 @@ void start()
 	g.pokebulletsTexture = SDL_CreateTextureFromSurface(g.renderer, IMG_Load("assets/pokeBalls.png"));
 	g.pokemonTexture = SDL_CreateTextureFromSurface(g.renderer, IMG_Load("assets/diamond-pearl.png"));
 	g.readmeTexture = SDL_CreateTextureFromSurface(g.renderer, IMG_Load("assets/readme.png"));
+	g.gameOverTexture = SDL_CreateTextureFromSurface(g.renderer, IMG_Load("assets/gameOver.png"));
 	//SDL_QueryTexture a pointer filled in with the texture width in pixels
 	SDL_QueryTexture(g.background, nullptr, nullptr, &g.background_width, nullptr); 
 
@@ -144,6 +147,7 @@ void start()
 	g.fx_shoot = Mix_LoadWAV("assets/fx/fireFX.wav");
 	g.fx_capture = Mix_LoadWAV("assets/fx/captureFX.wav");
 	g.fx_damage = Mix_LoadWAV("assets/fx/damageFX.wav");
+	g.fx_gameOver = Mix_LoadWAV("assets/fx/game_over.wav");
 
 	//other general vars
 
@@ -166,6 +170,7 @@ void start()
 
 void finishGame()
 {
+	if (g.gameOver == true)SDL_Delay(5000);
 	Mix_FreeMusic(g.music);
 	Mix_FreeChunk(g.fx_shoot);
 	Mix_CloseAudio();
@@ -222,7 +227,7 @@ bool checkInput()
 			}
 		}
 	}
-	
+	if (g.gameOver == true)ret = false;
 	return ret;
 }
 
@@ -246,7 +251,7 @@ void moveStuff()
 		{
 			g.last_shot = 0;
 			//g.pokebullets[i]
-			for (int i = 0; i < NUM_POKEBALLS; ++i)
+			for (int i = 0; i < NUM_POKEBALLS; ++i) //force new balls clean of the flag
 			{
 				g.pokebullets[i].masterBall = false;
 			}
@@ -291,8 +296,11 @@ void moveStuff()
 				g.pokebullets[i].x += POKEBALLSPEED;
 
 			else
+			{
 				g.pokebullets[i].alive = false; //when te ball outscreen = alive false for later checks
-			
+				g.pokebullets[i].x = 0; //reset positions
+				g.pokebullets[i].y = 0;
+			}
 			//AUTOTARGET MASTERBALL missile
 			//RADIAL DETECTION
 			if (g.pokebullets[i].masterBall == true) //only check if the bullet is MASTERBALL
@@ -352,6 +360,7 @@ void moveStuff()
 		
 			g.pokebullets[i].alive = false;
 			g.pokebullets[i].detected = false;
+			
 			--g.pokemonsOnScreen;
 			
 			Mix_PlayChannel(-1, g.fx_capture, 0);
@@ -395,7 +404,7 @@ void moveStuff()
 				//else g.pokemon[i].readme = false;
 				++g.pokemonsOnScreen;
 			
-				if (g.pokemon[i].readme == true && g.pokemon[i].alive == false)g.gameOver = true;
+				
 		}
 		
 		
@@ -423,7 +432,7 @@ void moveStuff()
 
  			g.pokemon[i].alive = false;
 			g.pokemonsOnScreen--;
-
+			if (g.pokemon[i].readme == true && g.pokemon[i].x  <= 0)g.gameOver = true;
 
 			}
 		}
@@ -578,8 +587,9 @@ void Draw()
 
 	if (g.gameOver == true)
 		 {
+			 Mix_PlayChannel(-1, g.fx_gameOver, 0);
 		g.target = { 0,0,windowWidth,windowHeight };
-		SDL_RenderCopy(g.renderer, g.background, nullptr, &g.target); //g.background has to be gameover texture
+		SDL_RenderCopy(g.renderer, g.gameOverTexture, nullptr, &g.target); //g.background has to be gameover texture
 		}
 	
 	
