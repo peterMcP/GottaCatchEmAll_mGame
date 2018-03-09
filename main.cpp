@@ -170,7 +170,7 @@ void start()
 
 void finishGame()
 {
-	if (g.gameOver == true)SDL_Delay(5000);
+	if (g.gameOver == true)SDL_Delay(9000);
 	Mix_FreeMusic(g.music);
 	Mix_FreeChunk(g.fx_shoot);
 	Mix_CloseAudio();
@@ -211,7 +211,7 @@ bool checkInput()
 				case SDLK_RIGHT: g.right = true; break;
 				case SDLK_LEFT: g.left = true; break;
 				case SDLK_SPACE: g.fire = (event.key.repeat == 0);break;
-				case SDLK_p: g.fire = (event.key.repeat == 0); g.masterBall = true; break;
+				case SDLK_LCTRL: g.fire = (event.key.repeat == 0); g.masterBall = true; break;
 				default: break;
 			}
 		}
