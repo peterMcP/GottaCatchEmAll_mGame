@@ -14,7 +14,7 @@
 //globals
 #define windowWidth 640
 #define windowHeight 480
-#define SCROLL_SPEED 3
+#define SCROLL_SPEED 80
 #define PLAYER_SPEED 5
 #define NUM_POKEBALLS 16
 #define NUM_POKEMONS 16
@@ -587,8 +587,12 @@ void Draw()
 
 	if (g.gameOver == true)
 		 {
-			 Mix_HaltMusic();
+			 int lastTime = SDL_GetTicks();
+			 //if(currentTime)
 			 Mix_PlayChannel(-1, g.fx_gameOver, 0);
+			 Mix_HaltMusic();
+			 SDL_Delay(110); //workaround OUT OF TIME
+			
 			g.target = { 0,0,windowWidth,windowHeight };
 			SDL_RenderCopy(g.renderer, g.gameOverTexture, nullptr, &g.target); //g.background has to be gameover texture
 		}
