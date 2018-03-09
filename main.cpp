@@ -587,9 +587,10 @@ void Draw()
 
 	if (g.gameOver == true)
 		 {
+			 Mix_HaltMusic();
 			 Mix_PlayChannel(-1, g.fx_gameOver, 0);
-		g.target = { 0,0,windowWidth,windowHeight };
-		SDL_RenderCopy(g.renderer, g.gameOverTexture, nullptr, &g.target); //g.background has to be gameover texture
+			g.target = { 0,0,windowWidth,windowHeight };
+			SDL_RenderCopy(g.renderer, g.gameOverTexture, nullptr, &g.target); //g.background has to be gameover texture
 		}
 	
 	
