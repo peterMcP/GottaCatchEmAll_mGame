@@ -395,7 +395,7 @@ void moveStuff()
 				//else g.pokemon[i].readme = false;
 				++g.pokemonsOnScreen;
 			
-			
+				if (g.pokemon[i].readme == true && g.pokemon[i].alive == false)g.gameOver = true;
 		}
 		
 		
@@ -423,6 +423,7 @@ void moveStuff()
 
  			g.pokemon[i].alive = false;
 			g.pokemonsOnScreen--;
+
 
 			}
 		}
@@ -574,6 +575,12 @@ void Draw()
 		g.target = { readme.x, readme.y, 60,60};
 		SDL_RenderCopy(g.renderer, g.readmeTexture, NULL, &g.target);
 	}*/
+
+	if (g.gameOver == true)
+		 {
+		g.target = { 0,0,windowWidth,windowHeight };
+		SDL_RenderCopy(g.renderer, g.background, nullptr, &g.target); //g.background has to be gameover texture
+		}
 	
 	
 	SDL_RenderPresent(g.renderer);
