@@ -22,7 +22,7 @@
 #define POKEBALLSPEED 3
 #define POKEMONSPEED 2
 #define READMESPEED 4
-#define DETECTIONRADIUS 400
+#define DETECTIONRADIUS 300
 #define PLAYERSIZE 70
 #define POKEBALLSIZE 25 //before 40
 #define POKEMONSIZE 110
@@ -120,10 +120,11 @@ void start()
 
 	IMG_Init(IMG_INIT_PNG);
 	g.background = SDL_CreateTextureFromSurface(g.renderer, IMG_Load("assets/background.png"));
-	g.playerTexture = SDL_CreateTextureFromSurface(g.renderer, IMG_Load("assets/AshPidg.png"));
+	
 	g.pokebulletsTexture = SDL_CreateTextureFromSurface(g.renderer, IMG_Load("assets/pokeBalls.png"));
 	g.pokemonTexture = SDL_CreateTextureFromSurface(g.renderer, IMG_Load("assets/diamond-pearl.png"));
 	g.readmeTexture = SDL_CreateTextureFromSurface(g.renderer, IMG_Load("assets/readme.png"));
+	g.playerTexture = SDL_CreateTextureFromSurface(g.renderer, IMG_Load("assets/AshPidg.png"));
 	g.gameOverTexture = SDL_CreateTextureFromSurface(g.renderer, IMG_Load("assets/gameOver.png"));
 	//SDL_QueryTexture a pointer filled in with the texture width in pixels
 	SDL_QueryTexture(g.background, nullptr, nullptr, &g.background_width, nullptr); 
@@ -160,9 +161,9 @@ void start()
 	srand((int)SDL_GetTicks());
 
 	//poketto = { rand() % windowWidth + 80, 120 + 80, 0, 0, true }; 
-	readme = { rand() % windowWidth + 120, 400, true };//rand() % windowHeight + 120, true};
+	//readme = { rand() % windowWidth + 120, 400, true };//rand() % windowHeight + 120, true};
 
-	g.respawnPokemons = true;
+	//g.respawnPokemons = true;
 
 	//random posx between max screen size and offset sprite size,posy,spritesheetposx,spritesheetposy,alive
 	
@@ -232,6 +233,7 @@ bool checkInput()
 	return ret;
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
 void moveStuff()
 {
 	//up mov and collision
@@ -265,7 +267,7 @@ void moveStuff()
 		if (g.masterBall == false) // NORMAL SHOT
 		{
 			g.pokebullets[g.last_shot].sprite = 1;//rand() % (0 + 1);
-			g.pokebullets[g.last_shot].x = g.player_x + POKEBALLSIZE;
+			g.pokebullets[g.last_shot].x = g.player_x + POKEBALLSIZE*2;
 			g.pokebullets[g.last_shot].y = g.player_y;
 			++g.last_shot;
 		}
@@ -302,6 +304,8 @@ void moveStuff()
 				g.pokebullets[i].x = 0; //reset positions
 				g.pokebullets[i].y = 0;
 			}
+
+			///////////////////////////////////////////////////////////////////////////////////////////
 			//AUTOTARGET MASTERBALL missile
 			//RADIAL DETECTION
 			if (g.pokebullets[i].masterBall == true) //only check if the bullet is MASTERBALL
@@ -356,8 +360,8 @@ void moveStuff()
 		g.pokebullets[i].x += g.dirx;
 		g.pokebullets[i].y += g.diry;
 
-		if (g.pokebullets[i].x == g.pokemon[g.pokebullets[i].enemyTargetIndex].x ||
-			g.pokebullets[i].y == g.pokemon[g.pokebullets[i].enemyTargetIndex].y) //if rendezvous = BOOM
+		if (g.pokebullets[i].x +(POKEBALLSIZE/2) == g.pokemon[g.pokebullets[i].enemyTargetIndex].x +(POKEMONSIZE/2) ||
+			g.pokebullets[i].y + (POKEBALLSIZE/2) == g.pokemon[g.pokebullets[i].enemyTargetIndex].y + (POKEBALLSIZE/2)) //if rendezvous = BOOM
 		
 			g.pokebullets[i].alive = false;
 			g.pokebullets[i].detected = false;
@@ -418,7 +422,7 @@ void moveStuff()
 
 		if (g.pokemon[i].alive)
 		{
-			if (g.pokemon[i].x > 0)
+			if (g.pokemon[i].x > 0 - POKEMONSIZE)//////////////////////////////////////////////
 			{
 				g.pokemon[i].x -= POKEMONSPEED;
 				if (g.pokemon[i].readme)
@@ -433,8 +437,9 @@ void moveStuff()
 
  			g.pokemon[i].alive = false;
 			g.pokemonsOnScreen--;
-			//if (g.pokemon[i].readme == true && g.pokemon[i].x  <= 0)g.gameOver = true;
-
+			////////////////////////////////////////////////////////PROVISIONAL GAMEOVER/////////////
+			if (g.pokemon[i].readme == true && g.pokemon[i].x  <= 0)g.gameOver = true;
+			/////////////////////////////////////////////////////////////////////////////////////////
 			}
 		}
 
@@ -475,7 +480,7 @@ void moveStuff()
 		if (g.pokemon[i].alive)
 		{
 			//if ((abs((g.player_x + (PLAYERSIZE / 2)) - (g.pokemon[i].x + (POKEMONSIZE / 2))) < POKEMONSIZE / 2 + POKEBALLSIZE / 2) && (abs(g.player_y + (PLAYERSIZE / 2) - g.pokemon[i].y + (POKEMONSIZE / 2)) < (PLAYERSIZE / 2 + POKEBALLSIZE / 2)))
-			if (abs(g.pokemon[i].x - g.player_x +(PLAYERSIZE/2) ) < POKEMONSIZE / 2 + POKEBALLSIZE / 2 && abs(g.player_y - g.pokemon[i].y) < PLAYERSIZE / 2 + POKEBALLSIZE / 2)
+			if (abs(g.pokemon[i].x - g.player_x +(PLAYERSIZE - 50) ) < POKEMONSIZE / 2 + POKEBALLSIZE / 2 && abs(g.player_y  - g.pokemon[i].y) < PLAYERSIZE / 2 + POKEBALLSIZE / 2)
 			{
 				//g.player_x = 0;
 				//event here when player collides with pokemon
@@ -518,7 +523,7 @@ void moveStuff()
 
 void Draw()
 {
-	/////////////////////////////////player mov////////////////////////////////////
+	/////////////////////////////////background////////////////////////////////////
 
 	g.scroll += SCROLL_SPEED;
 	if (g.scroll >= g.background_width)
@@ -529,8 +534,7 @@ void Draw()
 	g.target.x += g.background_width;
 	SDL_RenderCopy(g.renderer, g.background, NULL, &g.target);
 
-	g.target = { g.player_x, g.player_y, PLAYERSIZE, PLAYERSIZE };
-	SDL_RenderCopy(g.renderer, g.playerTexture, NULL, &g.target);
+	
 
 	/////////////////////////////////POKEBALLS/////////////////////////////////
 
@@ -586,6 +590,11 @@ void Draw()
 		g.target = { readme.x, readme.y, 60,60};
 		SDL_RenderCopy(g.renderer, g.readmeTexture, NULL, &g.target);
 	}*/
+
+	///////////////////////////////////////PLAYER//////////////////////////////////////////////////
+	g.target = { g.player_x, g.player_y, PLAYERSIZE, PLAYERSIZE };
+	SDL_RenderCopy(g.renderer, g.playerTexture, NULL, &g.target);
+	/////////////////////////////////////////////////////////////////////////////////////////////
 
 	if (g.gameOver == true)
 		 {
