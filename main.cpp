@@ -96,6 +96,7 @@ struct globals
 	float diry = 0;
 	int length = 0;
 	bool masterBall = false;
+	bool gameOver=false;
 	
 	bool gameOver = false;
 	//
@@ -441,6 +442,7 @@ void moveStuff()
 			if (g.pokemon[i].readme == true && g.pokemon[i].x  <= 0)g.gameOver = true;
 			/////////////////////////////////////////////////////////////////////////////////////////
 			}
+			if(g.pokemon[i].readme==true&&g.pokemon[i].alive==false)g.gameOver=true;
 		}
 
 	}
@@ -615,7 +617,11 @@ void Draw()
 			//
 		}
 	
-	
+	if(g.gamveOver==true)
+	{
+		f.tartget={0,0,windowWidth,windowHeght};
+		SDL_RenderCopy(g.renderer,g.background,nullptr,&g.target); //g.background has to be gameover texture
+	}
 	SDL_RenderPresent(g.renderer);
 
 }
